@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="icon" href="/img/book.png" />
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/css/main.css">
+	<title>My Book List</title>
+</head>
+<body>
+	<div class="container">
+		<div class="banner">
+			<img src="/img/books.png" alt="book banner">
+			<h1>My Book List</h1>
+		</div>
+		<div class="add-book">
+			<form id="add-book-form">
+				<div class="form-group">
+					<label for="title">Book Title</label>
+					<input type="text" class="form-control" id="title" placeholder="Book title" required>
+			    </div>
+			    <div class="form-group">
+					<label for="author">Author</label>
+					<input type="text" class="form-control" id="author" placeholder="Book title" required>
+			    </div>
+			    <div class="form-group">
+					<label for="isbn">ISBN</label>
+					<input type="text" class="form-control" id="isbn" placeholder="Book title">
+			    </div>
+			    <button type="submit" class="btn btn-primary">Submit</button>
+			</form>
+		</div>
+		<div class="list-table py-5">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">Title</th>
+						<th scope="col">Author</th>
+						<th scope="col">ISBN</th>
+						<th scope="col">Action</th>
+					</tr>
+				</thead>
+				<tbody id="book-list">
+					<tr id="dummy-row" class="d-none">
+						<th scope="row" class="title"></th>
+						<td class="author"></td>
+						<td class="isbn"></td>
+						<td><button type="button" class="btn btn-danger delete-btn">Delete</button></td>
+					</tr>		
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		var books = window.localStorage.getItem("books");
+		if (books) {
+			books = books.split("null,").join("");
+			books = JSON.parse(books);
+		} else {
+			books = [];
+		}
+		var bookList = document.querySelector("#book-list");
+
+		for (var i = 0; i < books.length; i++) {
+			var book = books[i];
+			if (book) {
+				bookList.appendChild(createRow(book, i));
+			}
+		}
+
+		document.getElementById("add-book-form").addEventListener("submit", function(event){
+			event.preventDefault();
+			var title = document.querySelector("#title").value;
+			var author = document.querySelector("#author").value;
+			var isbn = document.querySelector("#isbn").value;
+
+			var book = {
+				title: title,
+				author: author,
+				isbn: isbn
+			};
+
+			bookList.appendChild(createRow(book, books.length));
+			books.push(book);
+			window.localStorage.setItem("books", JSON.stringify(books));
+		});
+
+		$(document).on('click', '.delete-btn', function() {
+			$(this).parent().parent().remove();
+			var index = parseInt($(this).attr("index"));
+			books[index] = null;
+			window.localStorage.setItem("books", JSON.stringify(books));
+		});
+
+		function createRow(book, index) {
+			var row = document.querySelector("#dummy-row").cloneNode(true);
+			row.classList.remove("d-none");
+			row.querySelector(".title").innerHTML = book.title;
+			row.querySelector(".author").innerHTML = book.author;
+			row.querySelector(".isbn").innerHTML = book.isbn;
+			row.querySelector(".delete-btn").setAttribute("index", index + "");
+			return row;
+		}
+	</script>
+</body>
+</html>
